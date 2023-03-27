@@ -1,0 +1,100 @@
+install.packages("e1071") 
+library(e1071) # library used for SVM
+
+
+#Data
+data(iris)
+str(iris)
+
+# Visualizing the dataset
+library(ggplot2)
+
+qplot(Petal.Length, Petal.Width, data=iris, color=Species)
+help(qplot)
+
+#There is a separation based on the color, setosa is far from the other groups
+#SWM creates an optimum separating hyperplanes of different classes or groups.
+#and this is done by maximizing the margin between the hyperplanes.
+#Points that lie on the boundaries are SUPPORT VECTORS.
+
+
+# Lets predict species using all other variables.
+#Note: 4 numeric variables and 1 categorical variable.
+
+my_model <- svm(Species~., data = iris) #'.' means add all other variables
+
+summary(my_model)
+
+# Number of support Vectors are 51 with and...
+#8 22 21 shows the number of the classes of species. 8 reps the first type, etc
+
+# Lets plot the result and see what we get
+plot(my_model, data = iris, Petal.Width~Petal.Length,
+     slice = list(Sepal.Width = 3, Sepal.Length=4))
+
+View(iris)
+# support vectors are identified as 'x', decision boundaries divides the colors.
+# the "black x" indicates support vectors of Setosa, the "pink x" indicates
+#..support vectors for Versicolor, the "green x" indicates support vectors for
+#... virginica
+
+
+# to check for accuracy, we would make use of :
+# confusion matrix and Misclassification Error
+pred <- predict(my_model, iris)
+tab <- table(Predicted = pred, Actual = iris$Species)
+tab
+
+# Using this tab, we can see that our model predicted setosa correctly.
+# Our model predicted 2 that was supposed to be in versicolor in virginica
+# Our model predicted 2 that was supposed to be in virginica in Versicolor
+
+# To check for accuracy, we can add (50,48,48)/ 150 observations.
+# lets do it:
+# Calculating Misclassification Error:
+1-sum(diag(tab))/sum(tab)
+
+#therefore, Misclassification Error is 2%.
+
+# Note that this model used "radial" as its kernel. Let's try "Linear"
+
+
+my_model_linear <- svm(Species~., data = iris, kernel = "linear") 
+summary(my_model_linear)
+
+# Number of support Vectors are 29 with and...
+#2 15 12 shows the number of the classes of species. 2 reps the first type, etc
+
+# Lets plot the result and see what we get
+plot(my_model_linear, data = iris, Petal.Width~Petal.Length,
+     slice = list(Sepal.Width = 3, Sepal.Length=4))
+
+# notice the slight change in the classification
+
+# support vectors are identified as 'x', decision boundaries divides the colors.
+# the "black x" indicates support vectors of Setosa, the "pink x" indicates
+#..support vectors for Versicolor, the "green x" indicates support vectors for
+#... virginica
+
+
+# to check for accuracy, we would make use of :
+# confusion matrix and Misclassification Error
+pred_ <- predict(my_model_linear, iris)
+tab_ <- table(Predicted = pred, Actual = iris$Species)
+tab_
+
+# Using this tab, we can see that our model predicted setosa correctly.
+# Our model predicted 4 that was supposed to be in versicolor in virginica
+# Our model predicted 1 that was supposed to be in virginica in Versicolor
+
+# To check for accuracy, we can add (50,48,48)/ 150 observations.
+# lets do it:
+# Calculating Misclassification Error:
+1-sum(diag(tab_))/sum(tab_)
+
+#therefore, Misclassification Error is 3%.
+
+#Exercise:
+# change the kernel to polynomial, sigmoid and plot, see the difference in support vectors
+# and confusion matrix. # see that the error percentage 4%, higher than others.
+
